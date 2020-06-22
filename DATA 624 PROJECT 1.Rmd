@@ -1,0 +1,68 @@
+---
+title: "DATA 624 Project 1"
+output: html_document
+---
+
+```{r}
+library (tidyverse)
+library(forecast)
+library(ggplot2)
+group01<-read.csv("C://Users//jkks9//Documents//DATA 624//group01.csv", header=TRUE)
+group01<-group01%>%select(SeriesInd,Var01,Var02)
+head(group01)
+group01Var01_ts <- ts(group01$Var01, start=c(2011,5,6), frequency=365)
+autoplot(group01Var01_ts)+xlab("Days") + ylab("Var01") + ggtitle("Group 01 Var01 Time Series")
+group01Vat02_ts <- ts(group01$Var02, start=c(2011,5,6), frequency=365)
+autoplot(group01Vat02_ts)+xlab("Days") + ylab("Var02") + ggtitle("Group 01 Var02 Time Series")
+```
+
+```{r}
+group02<-read.csv("C://Users//jkks9//Documents//DATA 624//group02.csv", header=TRUE)
+group02<-group02%>%select(SeriesInd,Var02,Var03)
+head(group02)
+group02Var02_ts <- ts(group02$Var02, start=c(2011,5,6), frequency=365)
+autoplot(group02Var02_ts)+xlab("Days") + ylab("Var02") + ggtitle("Group 02 Var02 Time Series")
+group02Vat03_ts <- ts(group02$Var03, start=c(2011,5,6), frequency=365)
+autoplot(group02Vat03_ts)+xlab("Days") + ylab("Var03") + ggtitle("Group 02 Var03 Time Series")
+```
+
+```{r}
+group03<-read.csv("C://Users//jkks9//Documents//DATA 624//group03.csv", header=TRUE)
+group03<-group03%>%select(SeriesInd,Var05,Var07)
+head(group03)
+group03Var05_ts <- ts(group03$Var05, start=c(2011,5,6), frequency=365)
+autoplot(group03Var05_ts)+xlab("Days") + ylab("Var05") + ggtitle("Group 03 Var05 Time Series")
+group03Vat07_ts <- ts(group03$Var07, start=c(2011,5,6), frequency=365)
+autoplot(group03Vat07_ts)+xlab("Days") + ylab("Var07") + ggtitle("Group 03 Var07 Time Series")
+```
+
+```{r}
+group04<-read.csv("C://Users//jkks9//Documents//DATA 624//group04.csv", header=TRUE)
+group04<-group04%>%select(SeriesInd,Var01,Var02)
+head(group04)
+group04Var01_ts <- ts(group04$Var01, start=c(2011,5,6), frequency=365)
+autoplot(group04Var01_ts)+xlab("Days") + ylab("Var01") + ggtitle("Group 04 Var01 Time Series")
+group04Vat02_ts <- ts(group04$Var02, start=c(2011,5,6), frequency=365)
+autoplot(group04Vat02_ts)+xlab("Days") + ylab("Var02") + ggtitle("Group 04 Var02 Time Series")
+```
+
+```{r}
+group05<-read.csv("C://Users//jkks9//Documents//DATA 624//group05.csv", header=TRUE)
+group05<-group05%>%select(SeriesInd,Var02,Var03)
+head(group05)
+group05Var02_ts <- ts(group05$Var02, start=c(2011,5,6), frequency=365)
+autoplot(group05Var02_ts)+xlab("Days") + ylab("Var02") + ggtitle("Group 05 Var02 Time Series")
+group05Vat03_ts <- ts(group05$Var03, start=c(2011,5,6), frequency=365)
+autoplot(group05Vat03_ts)+xlab("Days") + ylab("Var03") + ggtitle("Group 05 Var03 Time Series")
+```
+
+```{r}
+group06<-read.csv("C://Users//jkks9//Documents//DATA 624//group06.csv", header=TRUE)
+group06<-group06%>%select(SeriesInd,Var05,Var07)
+head(group06)
+group06Var05_ts <- ts(group06$Var05, start=c(2011,5,6), frequency=365)
+autoplot(group06Var05_ts)+xlab("Days") + ylab("Var05") + ggtitle("Group 06 Var05 Time Series")
+group06Vat07_ts <- ts(group06$Var07, start=c(2011,5,6), frequency=365)
+autoplot(group06Vat07_ts)+xlab("Days") + ylab("Var07") + ggtitle("Group 06 Var07 Time Series")
+```
+

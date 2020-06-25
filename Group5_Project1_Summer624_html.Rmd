@@ -1,0 +1,640 @@
+---
+title: "Project 1 Group 5"
+author: "Aaron Zalki, Mia Siracusa, Lidiia Tronina, John Suh, Henry Vasquez"
+date: "6/21/2020"
+---
+
+```{r}
+
+library(dplyr)
+data <- readxl::read_excel('./Data Set for Class.xls')%>%
+ mutate(SeriesInd = as.Date(SeriesInd, "1899-12-30"))
+
+data%>%
+  summary()
+
+```
+
+
+```{r}
+data1 <- data %>%
+  filter(between(SeriesInd, as.Date("2011-05-06"),as.Date("2017-10-13")))
+data1%>%
+  summary()
+```
+```{r}
+data1%>%
+  filter(!complete.cases(.)) 
+
+```
+
+```{r}
+data_cc <- data1%>%
+  filter(complete.cases(.)) 
+medians <- data_cc %>%
+  group_by(group) %>%
+  summarise(med = median(Var01))
+data1[is.na(data1$Var01) & data1$group == 'S01', ]$Var01 <- medians$med[medians$group == 'S01'][1] 
+data1[is.na(data1$Var01) & data1$group == 'S02', ]$Var01 <- medians$med[medians$group == 'S02'][1] 
+data1[is.na(data1$Var01) & data1$group == 'S03', ]$Var01 <- medians$med[medians$group == 'S03'][1] 
+data1[is.na(data1$Var01) & data1$group == 'S04', ]$Var01 <- medians$med[medians$group == 'S04'][1] 
+data1[is.na(data1$Var01) & data1$group == 'S05', ]$Var01 <- medians$med[medians$group == 'S05'][1] 
+data1[is.na(data1$Var01) & data1$group == 'S06', ]$Var01 <- medians$med[medians$group == 'S06'][1] 
+
+medians <- data_cc %>%
+  group_by(group) %>%
+  summarise(med = median(Var02))
+data1[is.na(data1$Var02) & data1$group == 'S05', ]$Var02 <- medians$med[medians$group == 'S05'][1] 
+data1[is.na(data1$Var02) & data1$group == 'S06', ]$Var02 <- medians$med[medians$group == 'S06'][1] 
+
+medians <- data_cc %>%
+  group_by(group) %>%
+  summarise(med = median(Var03))
+data1[is.na(data1$Var03) & data1$group == 'S01', ]$Var03 <- medians$med[medians$group == 'S01'][1] 
+data1[is.na(data1$Var03) & data1$group == 'S02', ]$Var03 <- medians$med[medians$group == 'S02'][1] 
+data1[is.na(data1$Var03) & data1$group == 'S03', ]$Var03 <- medians$med[medians$group == 'S03'][1] 
+data1[is.na(data1$Var03) & data1$group == 'S04', ]$Var03 <- medians$med[medians$group == 'S04'][1] 
+data1[is.na(data1$Var03) & data1$group == 'S05', ]$Var03 <- medians$med[medians$group == 'S05'][1] 
+data1[is.na(data1$Var03) & data1$group == 'S06', ]$Var03 <- medians$med[medians$group == 'S06'][1] 
+
+
+medians <- data_cc %>%
+  group_by(group) %>%
+  summarise(med = median(Var05))
+data1[is.na(data1$Var05) & data1$group == 'S01', ]$Var05 <- medians$med[medians$group == 'S01'][1] 
+data1[is.na(data1$Var05) & data1$group == 'S02', ]$Var05 <- medians$med[medians$group == 'S02'][1] 
+data1[is.na(data1$Var05) & data1$group == 'S03', ]$Var05 <- medians$med[medians$group == 'S03'][1] 
+data1[is.na(data1$Var05) & data1$group == 'S04', ]$Var05 <- medians$med[medians$group == 'S04'][1] 
+data1[is.na(data1$Var05) & data1$group == 'S05', ]$Var05 <- medians$med[medians$group == 'S05'][1] 
+data1[is.na(data1$Var05) & data1$group == 'S06', ]$Var05 <- medians$med[medians$group == 'S06'][1] 
+
+medians <- data_cc %>%
+  group_by(group) %>%
+  summarise(med = median(Var07))
+data1[is.na(data1$Var07) & data1$group == 'S01', ]$Var07 <- medians$med[medians$group == 'S01'][1] 
+data1[is.na(data1$Var07) & data1$group == 'S02', ]$Var07 <- medians$med[medians$group == 'S02'][1] 
+data1[is.na(data1$Var07) & data1$group == 'S03', ]$Var07 <- medians$med[medians$group == 'S03'][1] 
+data1[is.na(data1$Var07) & data1$group == 'S04', ]$Var07 <- medians$med[medians$group == 'S04'][1] 
+data1[is.na(data1$Var07) & data1$group == 'S05', ]$Var07 <- medians$med[medians$group == 'S05'][1] 
+data1[is.na(data1$Var07) & data1$group == 'S06', ]$Var07 <- medians$med[medians$group == 'S06'][1] 
+
+data1%>%
+  summary()
+
+```
+S01 – Forecast  Var01, Var02
+S02 – Forecast  Var02, Var03
+S03 – Forecast  Var05, Var07
+S04 – Forecast  Var01, Var02
+S05 – Forecast  Var02, Var03
+S06 – Forecast  Var05, Var07
+
+
+
+##S01 – Forecast  Var01
+
+##S01 – Forecast  Var02
+
+##S02 – Forecast  Var02
+
+##S02 – Forecast  Var03
+
+##S03 – Forecast  Var05
+
+##S03 – Forecast  Var07
+
+##SUBSET DATA BY GROUP VARIABLES
+
+```{r}
+s01_var01 <- data1%>%
+  filter(group =='S01' ) %>%
+  select(SeriesInd, Var01)
+
+s01_var02 <- data1%>%
+  filter(group =='S01' ) %>%
+  select(SeriesInd, Var02)
+
+s02_var02 <- data1%>%
+  filter(group =='S02' ) %>%
+  select(SeriesInd, Var02)
+
+s02_var03 <- data1%>%
+  filter(group =='S02' ) %>%
+  select(SeriesInd, Var03)
+
+s03_var05 <- data1%>%
+  filter(group =='S03' ) %>%
+  select(SeriesInd, Var05)
+
+s03_var07 <- data1%>%
+  filter(group =='S03' ) %>%
+  select(SeriesInd, Var07)
+```
+
+#PLOT TIME SERIES
+
+```{r}
+library(fpp2)
+s01_var01<- ts(s01_var01[,2], start = c(2011,88), frequency = 261)
+autoplot(s01_var01)
+
+s01_var02<- ts(s01_var02[,2], start = c(2011,88), frequency = 261)
+autoplot(s01_var02)
+
+s02_var02<- ts(s02_var02[,2], start = c(2011,88), frequency = 261)
+autoplot(s02_var02)
+
+s02_var03<- ts(s02_var03[,2], start = c(2011,88), frequency = 261)
+autoplot(s02_var03)
+
+s03_var05<- ts(s03_var05[,2], start = c(2011,88), frequency = 261)
+autoplot(s03_var05)
+
+s03_var07<- ts(s03_var07[,2], start = c(2011,88), frequency = 261)
+autoplot(s03_var07)
+
+```
+
+
+#FIND THE OUTLIERS
+
+```{r}
+s01_var01outlier <- which.max(s01_var01)
+s01_var01outlier
+s01_var02outlier <- which.max(s01_var02)
+s01_var02outlier
+s02_var02outlier <- which.max(s02_var02)
+s02_var02outlier
+s02_var03outlier <- which.max(s02_var03)
+s02_var03outlier
+s03_var05outlier <- which.max(s03_var05)
+s03_var05outlier
+s03_var07outlier <- which.max(s03_var07)
+s03_var07outlier
+```
+
+##LOOK AT SEASONAL FREQUENCIES
+
+```{r}
+frequency(s01_var01)
+frequency(s01_var02)
+frequency(s02_var02)
+frequency(s02_var03)
+frequency(s03_var05)
+frequency(s03_var07)
+```
+
+##SEASONAL PLOTS
+
+```{r}
+ggseasonplot(s01_var01)
+ggseasonplot(s01_var02)
+ggseasonplot(s02_var02)
+ggseasonplot(s02_var03)
+ggseasonplot(s03_var05)
+ggseasonplot(s03_var07)
+```
+
+##SUBSERIES PLOT
+
+```{r}
+ggsubseriesplot(s01_var01)
+ggsubseriesplot(s01_var02)
+ggsubseriesplot(s02_var02)
+ggsubseriesplot(s02_var03)
+ggsubseriesplot(s03_var05)
+ggsubseriesplot(s03_var07)
+```
+
+
+##CREATE ACF PLOTS
+
+```{r}
+ggAcf(s01_var01)
+ggAcf(s01_var02)
+ggAcf(s02_var02)
+ggAcf(s02_var03)
+ggAcf(s03_var05)
+ggAcf(s03_var07)
+```
+
+##Autocorrelation example-ASK Lidia what is this?
+
+```{r}
+autoplot(s01_var01)
+ggAcf(s01_var01)
+maxlag_s01_var01<-5
+```
+
+
+##WHITE NOISE TESTING
+
+```{r}
+autoplot(s01_var01)
+autoplot(diff(s01_var01))
+ggAcf(diff(s01_var01))
+Box.test(diff(s01_var01), lag=522, type="Ljung")
+
+autoplot(s01_var02)
+autoplot(diff(s01_var02))
+ggAcf(diff(s01_var02))
+Box.test(diff(s01_var02), lag=522, type="Ljung")
+
+autoplot(s02_var02)
+autoplot(diff(s02_var02))
+ggAcf(diff(s02_var02))
+Box.test(diff(s02_var02), lag=522, type="Ljung")
+
+autoplot(s02_var03)
+autoplot(diff(s02_var03))
+ggAcf(diff(s02_var03))
+Box.test(diff(s02_var03), lag=522, type="Ljung")
+
+autoplot(s03_var05)
+autoplot(diff(s03_var05))
+ggAcf(diff(s03_var05))
+Box.test(diff(s03_var05), lag=522, type="Ljung")
+
+autoplot(s03_var07)
+autoplot(diff(s03_var07))
+ggAcf(diff(s03_var07))
+Box.test(diff(s03_var07), lag=522, type="Ljung")
+```
+
+##FORECASTS USING NAIVE AND SNAIVE
+
+```{r}
+s01_var01n<-naive(s01_var01,140)
+s01_var02n<-naive(s01_var02,140)
+s02_var02n<-naive(s02_var02,140)
+s02_var03n<-naive(s02_var03,140)
+s03_var05n<-naive(s03_var05,140)
+s03_var07n<-naive(s03_var07,140)
+autoplot(s01_var01n)
+summary(s01_var01n)
+autoplot(s01_var02n)
+summary(s01_var02n)
+autoplot(s02_var02n)
+summary(s02_var02n)
+autoplot(s02_var03n)
+summary(s02_var03n)
+autoplot(s03_var05n)
+summary(s03_var05n)
+autoplot(s03_var07n)
+summary(s03_var07n)
+s01_var01sn<-snaive(s01_var01,140)
+s01_var02sn<-snaive(s01_var02,140)
+s02_var02sn<-snaive(s02_var02,140)
+s02_var03sn<-snaive(s02_var03,140)
+s03_var05sn<-snaive(s03_var05,140)
+s03_var07sn<-snaive(s03_var07,140)
+autoplot(s01_var01sn)
+summary(s01_var01sn)
+autoplot(s01_var02sn)
+summary(s01_var02sn)
+autoplot(s02_var02sn)
+summary(s02_var02sn)
+autoplot(s02_var03sn)
+summary(s02_var03sn)
+autoplot(s03_var05sn)
+summary(s03_var05sn)
+autoplot(s03_var07sn)
+summary(s03_var07sn)
+
+```
+
+##FITTED VALUES AND RESIDUALS
+
+```{r}
+checkresiduals(s01_var01n)
+checkresiduals(s01_var02n)
+checkresiduals(s02_var02n)
+checkresiduals(s02_var03n)
+checkresiduals(s03_var05n)
+checkresiduals(s03_var07n)
+checkresiduals(s01_var01sn)
+checkresiduals(s01_var02sn)
+checkresiduals(s02_var02sn)
+checkresiduals(s02_var03sn)
+checkresiduals(s03_var05sn)
+checkresiduals(s03_var07sn)
+```
+
+
+##TRAINING AND TEST SETS NON SEASONAL
+
+```{r}
+train <- subset(s01_var01, end = 1296)
+naive_fc <- naive(train, h = 324)
+mean_fc <- meanf(train, h = 108)
+accuracy(naive_fc, s01_var01)
+accuracy(mean_fc, s01_var01)
+autoplot(naive_fc)
+autoplot(mean_fc)
+#naive better
+
+train <- subset(s01_var02, end = 1296)
+naive_fc <- naive(train, h = 324)
+mean_fc <- meanf(train, h = 108)
+accuracy(naive_fc, s01_var02)
+accuracy(mean_fc, s01_var02)
+autoplot(naive_fc)
+autoplot(mean_fc)
+#naive better
+
+train <- subset(s02_var02, end = 1296)
+naive_fc <- naive(train, h = 324)
+mean_fc <- meanf(train, h = 108)
+accuracy(naive_fc, s02_var02)
+accuracy(mean_fc, s02_var02)
+autoplot(naive_fc)
+autoplot(mean_fc)
+#naive better
+
+train <- subset(s02_var03, end = 1296)
+naive_fc <- naive(train, h = 324)
+mean_fc <- meanf(train, h = 108)
+accuracy(naive_fc, s02_var03)
+accuracy(mean_fc, s02_var03)
+autoplot(naive_fc)
+autoplot(mean_fc)
+#mean better
+
+train <- subset(s03_var05, end = 1296)
+naive_fc <- naive(train, h = 324)
+mean_fc <- meanf(train, h = 108)
+accuracy(naive_fc, s03_var05)
+accuracy(mean_fc, s03_var05)
+autoplot(naive_fc)
+autoplot(mean_fc)
+#naive better
+
+train <- subset(s03_var07, end = 1296)
+naive_fc <- naive(train, h = 324)
+mean_fc <- meanf(train, h = 108)
+accuracy(naive_fc, s03_var07)
+accuracy(mean_fc, s03_var07)
+autoplot(naive_fc)
+autoplot(mean_fc)
+#naive better
+
+
+```
+
+##TRAINING AND TEST SETS SEASONAL
+
+```{r}
+train1 <- window(s01_var01, end = c(2011, 133))
+train2 <- window(s01_var01, end = c(2012, 203))
+train3 <- window(s01_var01, end = c(2013, 201))
+
+# Produce forecasts using snaive()
+fc1 <- snaive(train1, h = 34)
+fc2 <- snaive(train2, h = 51)
+fc3 <- snaive(train3, h = 51)
+
+# Use accuracy() to compare the MAPE of each series
+accuracy(fc1, s01_var01)["Test set", "MAPE"]
+accuracy(fc2, s01_var01)["Test set", "MAPE"]
+accuracy(fc3, s01_var01)["Test set", "MAPE"]
+
+autoplot(fc1)
+autoplot(fc2)
+autoplot(fc3)
+
+# fc1 had lowest
+```
+
+
+##Exponential Smoothing
+
+
+```{r}
+fcs01_var01 <- ses(s01_var01, h = 140)
+summary(fcs01_var01)
+autoplot(fcs01_var01)
+autoplot(fcs01_var01) + autolayer(fitted(fcs01_var01))
+
+fcs01_var02 <- ses(s01_var02, h = 140)
+summary(fcs01_var02)
+autoplot(fcs01_var02)
+autoplot(fcs01_var02) + autolayer(fitted(fcs01_var02))
+
+fcs02_var02 <- ses(s02_var02, h = 140)
+summary(fcs02_var02)
+autoplot(fcs02_var02)
+autoplot(fcs02_var02) + autolayer(fitted(fcs01_var01))
+
+fcs02_var03 <- ses(s02_var03, h = 140)
+summary(fcs02_var03)
+autoplot(fcs02_var03)
+autoplot(fcs02_var03) + autolayer(fitted(fcs02_var03))
+
+fcs03_var05 <- ses(s03_var05, h = 140)
+summary(fcs03_var05)
+autoplot(fcs03_var05)
+autoplot(fcs03_var05) + autolayer(fitted(fcs03_var05))
+
+fcs03_var07 <- ses(s03_var07, h = 140)
+summary(fcs03_var07)
+autoplot(fcs03_var07)
+autoplot(fcs03_var07) + autolayer(fitted(fcs03_var07))
+
+
+```
+
+##SES VS NAIVE
+
+```{r}
+train <- subset(s01_var01, end = length(s01_var01) - 324)
+fcses <- ses(train, h = 324)
+fcnaive <- naive(train, h = 324)
+accuracy(fcses, s01_var01)
+accuracy(fcnaive, s01_var01)
+#No difference
+
+train <- subset(s01_var02, end = length(s01_var02) - 324)
+fcses <- ses(train, h = 324)
+fcnaive <- naive(train, h = 324)
+accuracy(fcses, s01_var02)
+accuracy(fcnaive, s01_var02)
+#SES better
+
+train <- subset(s02_var02, end = length(s02_var02) - 324)
+fcses <- ses(train, h = 324)
+fcnaive <- naive(train, h = 324)
+accuracy(fcses, s02_var02)
+accuracy(fcnaive, s02_var02)
+#naive better
+
+train <- subset(s02_var03, end = length(s02_var03) - 324)
+fcses <- ses(train, h = 324)
+fcnaive <- naive(train, h = 324)
+accuracy(fcses, s02_var03)
+accuracy(fcnaive, s02_var03)
+#No difference
+
+train <- subset(s03_var05, end = length(s03_var05) - 324)
+fcses <- ses(train, h = 324)
+fcnaive <- naive(train, h = 324)
+accuracy(fcses, s03_var05)
+accuracy(fcnaive, s03_var05)
+#naive better
+
+train <- subset(s03_var07, end = length(s03_var07) - 324)
+fcses <- ses(train, h = 324)
+fcnaive <- naive(train, h = 324)
+accuracy(fcses, s03_var07)
+accuracy(fcnaive, s03_var07)
+#No difference
+
+```
+
+##Exponential Smoothing with Trend
+
+```{r}
+fcholt <- holt(s01_var01, h = 140)
+summary(fcholt)
+autoplot(fcholt)
+checkresiduals(fcholt)
+
+fcholt <- holt(s01_var02, h = 140)
+summary(fcholt)
+autoplot(fcholt)
+checkresiduals(fcholt)
+
+fcholt <- holt(s02_var02, h = 140)
+summary(fcholt)
+autoplot(fcholt)
+checkresiduals(fcholt)
+
+fcholt <- holt(s02_var03, h = 140)
+summary(fcholt)
+autoplot(fcholt)
+checkresiduals(fcholt)
+
+fcholt <- holt(s03_var05, h = 140)
+summary(fcholt)
+autoplot(fcholt)
+checkresiduals(fcholt)
+
+fcholt <- holt(s03_var07, h = 140)
+summary(fcholt)
+autoplot(fcholt)
+checkresiduals(fcholt)
+```
+
+
+##Exponential smoothing with trend and seasonality-getting error
+
+```{r}
+.f = function() {train <- subset(s01_var01, end = length(s01_var01) - 324)
+fchw <- hw(train, seasonal = "additive", h = 324)
+fcsn <- snaive(train, h = 324)
+accuracy(fchw, s01_var01)
+accuracy(fcsn, s01_var01)
+autoplot(fchw)
+
+train <- subset(s01_var02, end = length(s01_var02) - 324)
+fchw <- hw(train, seasonal = "additive", h = 324)
+fcsn <- snaive(train, h = 324)
+accuracy(fchw, s01_var02)
+accuracy(fcsn, s01_var02)
+autoplot(fchw)
+
+train <- subset(s02_var02, end = length(s02_var02) - 324)
+fchw <- hw(train, seasonal = "additive", h = 324)
+fcsn <- snaive(train, h = 324)
+accuracy(fchw, s02_var02)
+accuracy(fcsn, s02_var02)
+autoplot(fchw)
+
+train <- subset(s02_var03, end = length(s02_var03) - 324)
+fchw <- hw(train, seasonal = "additive", h = 324)
+fcsn <- snaive(train, h = 324)
+accuracy(fchw, s02_var03)
+accuracy(fcsn, s02_var03)
+autoplot(fchw)
+
+train <- subset(s03_var05, end = length(s03_var05) - 324)
+fchw <- hw(train, seasonal = "additive", h = 324)
+fcsn <- snaive(train, h = 324)
+accuracy(fchw, s03_var05)
+accuracy(fcsn, s03_var05)
+autoplot(fchw)
+
+train <- subset(s03_var07, end = length(s03_var07) - 324)
+fchw <- hw(train, seasonal = "additive", h = 324)
+fcsn <- snaive(train, h = 324)
+accuracy(fchw, s03_var07)
+accuracy(fcsn, s03_var07)
+autoplot(fchw)}
+
+```
+
+
+##AUTOMATIC MODEL SELECTION Exponential Smoothing ets (error,trend,seasonality)
+
+```{r}
+#Remember, a model passes the Ljung-Box test when the p-value is greater than 0.05. 
+
+fit <- ets(s01_var01)
+checkresiduals(fit)
+autoplot(forecast(fit))
+
+fit2 <- stlf(s01_var01)
+checkresiduals(fit2)
+autoplot(forecast(fit2))
+
+
+fit <- ets(s01_var02)
+checkresiduals(fit)
+autoplot(forecast(fit))
+
+fit2 <- stlf(s01_var02)
+checkresiduals(fit2)
+autoplot(forecast(fit2))
+
+
+fit <- ets(s02_var02)
+checkresiduals(fit)
+autoplot(forecast(fit))
+
+fit2 <- stlf(s02_var02)
+checkresiduals(fit2)
+autoplot(forecast(fit2))
+
+fit <- ets(s02_var03)
+checkresiduals(fit)
+autoplot(forecast(fit))
+
+fit2 <- stlf(s02_var03)
+checkresiduals(fit2)
+autoplot(forecast(fit2))
+
+fit <- ets(s03_var05)
+checkresiduals(fit)
+autoplot(forecast(fit))
+
+fit2 <- stlf(s03_var05)
+checkresiduals(fit2)
+autoplot(forecast(fit2))
+
+fit <- ets(s03_var07)
+checkresiduals(fit)
+autoplot(forecast(fit))
+
+fit2 <- stlf(s03_var07)
+checkresiduals(fit2)
+autoplot(forecast(fit2))
+
+
+
+```
+
+
+
+```{r}
+s01_var01 %>% decompose(type = "multiplicative") %>%
+  autoplot()  + xlab("Year")
+```

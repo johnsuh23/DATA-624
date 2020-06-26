@@ -1,0 +1,823 @@
+---
+title: "Project 1 Group 5"
+author: "Aaron Zalki, Mia Siracusa, Lidiia Tronina, John Suh, Henry Vasquez"
+date: "6/21/2020"
+---
+
+On or about 6/20/2020, our team was tasked by the CEO of ACME Corp to research and study forecasting models that could be used by the company in order to produce reliable forecasts that would help with the annual planning and budgeting by the finance deptartment. This directive was sent via email accompanied by the atachment of the document below. Along with the credentials to access a secret SQL database called DATA624 that had the data to model the forecast on. We have come up with a forecasting model for the company as instructed by our CEO which shall be shared in our conclusion. Our research and methodolgies that brought us to our conclusion and what we ultimately recommended will also be shared in the report.
+
+<br>
+
+![EmailFromCEO](C:/Users/jkks9/Documents/DATA 624/email.jpg)
+
+<br>
+
+![EmailAttachment](C:/Users/jkks9/Documents/DATA 624/document.jpg)
+
+
+In the first part of this project, we want to perform fundamental analysis of the data.
+
+###Import and Clean Data
+
+First step is to import the data from excel. When we imported the excel file, R was not reading the dates correctly, so we converted the first column in the date format.
+
+```{r, include=TRUE, message=FALSE, warning=FALSE, echo=FALSE}
+library(dplyr)
+library(fpp2)
+data <- readxl::read_excel('./Data Set for Class.xls')%>%
+ mutate(SeriesInd = as.Date(SeriesInd, "1899-12-30"))
+
+data%>%
+  summary()
+
+```
+
+
+Next step is to examine the data before converting it to a time series to see if there is any missing data or other problems with the data. By doing this we discovered a few problems that needed to be dealt with:
+
+1.      All variables except date are NA after 10/13/17.
+2.      There are several NA that are in the middle of the data set.
+3.      There are outliers in data that are far above the normal.
+4.      The date field has only workdays (Monday through Friday).
+ 
+We removed all blank observations after 10/13/17. Other NA’s data were imputed using the median since the number of missing values was so small. We used median for each variable and group separately.
+
+
+```{r, include=FALSE, message=FALSE, warning=FALSE, echo=FALSE}
+data1 <- data %>%
+  filter(between(SeriesInd, as.Date("2011-05-06"),as.Date("2017-10-13")))
+data1%>%
+  summary()
+data1%>%
+  filter(!complete.cases(.)) 
+data_cc <- data1%>%
+  filter(complete.cases(.)) 
+
+medians <- data_cc %>%
+  group_by(group) %>%
+  summarise(med = median(Var01))
+data1[is.na(data1$Var01) & data1$group == 'S01', ]$Var01 <- medians$med[medians$group == 'S01'][1] 
+data1[is.na(data1$Var01) & data1$group == 'S02', ]$Var01 <- medians$med[medians$group == 'S02'][1] 
+data1[is.na(data1$Var01) & data1$group == 'S03', ]$Var01 <- medians$med[medians$group == 'S03'][1] 
+data1[is.na(data1$Var01) & data1$group == 'S04', ]$Var01 <- medians$med[medians$group == 'S04'][1] 
+data1[is.na(data1$Var01) & data1$group == 'S05', ]$Var01 <- medians$med[medians$group == 'S05'][1] 
+data1[is.na(data1$Var01) & data1$group == 'S06', ]$Var01 <- medians$med[medians$group == 'S06'][1] 
+
+medians <- data_cc %>%
+  group_by(group) %>%
+  summarise(med = median(Var02))
+data1[is.na(data1$Var02) & data1$group == 'S05', ]$Var02 <- medians$med[medians$group == 'S05'][1] 
+data1[is.na(data1$Var02) & data1$group == 'S06', ]$Var02 <- medians$med[medians$group == 'S06'][1] 
+
+medians <- data_cc %>%
+  group_by(group) %>%
+  summarise(med = median(Var03))
+data1[is.na(data1$Var03) & data1$group == 'S01', ]$Var03 <- medians$med[medians$group == 'S01'][1] 
+data1[is.na(data1$Var03) & data1$group == 'S02', ]$Var03 <- medians$med[medians$group == 'S02'][1] 
+data1[is.na(data1$Var03) & data1$group == 'S03', ]$Var03 <- medians$med[medians$group == 'S03'][1] 
+data1[is.na(data1$Var03) & data1$group == 'S04', ]$Var03 <- medians$med[medians$group == 'S04'][1] 
+data1[is.na(data1$Var03) & data1$group == 'S05', ]$Var03 <- medians$med[medians$group == 'S05'][1] 
+data1[is.na(data1$Var03) & data1$group == 'S06', ]$Var03 <- medians$med[medians$group == 'S06'][1] 
+
+medians <- data_cc %>%
+  group_by(group) %>%
+  summarise(med = median(Var05))
+data1[is.na(data1$Var05) & data1$group == 'S01', ]$Var05 <- medians$med[medians$group == 'S01'][1] 
+data1[is.na(data1$Var05) & data1$group == 'S02', ]$Var05 <- medians$med[medians$group == 'S02'][1] 
+data1[is.na(data1$Var05) & data1$group == 'S03', ]$Var05 <- medians$med[medians$group == 'S03'][1] 
+data1[is.na(data1$Var05) & data1$group == 'S04', ]$Var05 <- medians$med[medians$group == 'S04'][1] 
+data1[is.na(data1$Var05) & data1$group == 'S05', ]$Var05 <- medians$med[medians$group == 'S05'][1] 
+data1[is.na(data1$Var05) & data1$group == 'S06', ]$Var05 <- medians$med[medians$group == 'S06'][1] 
+
+medians <- data_cc %>%
+  group_by(group) %>%
+  summarise(med = median(Var07))
+data1[is.na(data1$Var07) & data1$group == 'S01', ]$Var07 <- medians$med[medians$group == 'S01'][1] 
+data1[is.na(data1$Var07) & data1$group == 'S02', ]$Var07 <- medians$med[medians$group == 'S02'][1] 
+data1[is.na(data1$Var07) & data1$group == 'S03', ]$Var07 <- medians$med[medians$group == 'S03'][1] 
+data1[is.na(data1$Var07) & data1$group == 'S04', ]$Var07 <- medians$med[medians$group == 'S04'][1] 
+data1[is.na(data1$Var07) & data1$group == 'S05', ]$Var07 <- medians$med[medians$group == 'S05'][1] 
+data1[is.na(data1$Var07) & data1$group == 'S06', ]$Var07 <- medians$med[medians$group == 'S06'][1] 
+```
+
+
+
+
+```{r, include=TRUE, message=FALSE, warning=FALSE, echo=FALSE}
+data1%>%
+  summary()
+```
+
+
+
+Time series objects were created for each group and variable separately. We used 261 days as our frequency, which is the approximate number of weekdays in a year.
+
+
+
+###Forecast
+
+For each group and variable, we want to run at least 2 models, and see which has the better performance.
+Before running any models we will check the ACF and PACF plots, seasonal plot, time series decomposition plot to see what it can recommend for what type of model they suggest might be most appropriate.
+
+
+
+
+
+
+###JOHN------------------------------------------------------------------------------------------------------------
+
+S01 – Forecast  Var01, Var02
+S02 – Forecast  Var02, Var03
+S03 – Forecast  Var05, Var07
+S04 – Forecast  Var01, Var02
+S05 – Forecast  Var02, Var03
+S06 – Forecast  Var05, Var07
+
+##SUBSET DATA BY GROUP VARIABLES
+
+```{r}
+s01_var01 <- data1%>%
+  filter(group =='S01' ) %>%
+  select(SeriesInd, Var01)
+
+s01_var02 <- data1%>%
+  filter(group =='S01' ) %>%
+  select(SeriesInd, Var02)
+
+s02_var02 <- data1%>%
+  filter(group =='S02' ) %>%
+  select(SeriesInd, Var02)
+
+s02_var03 <- data1%>%
+  filter(group =='S02' ) %>%
+  select(SeriesInd, Var03)
+
+s03_var05 <- data1%>%
+  filter(group =='S03' ) %>%
+  select(SeriesInd, Var05)
+
+s03_var07 <- data1%>%
+  filter(group =='S03' ) %>%
+  select(SeriesInd, Var07)
+```
+
+
+##PRELIMINARY ANALYSIS JS--------------------------------
+##TIME PLOTS JS------------------------------------------
+##PLOT TIME SERIES JS------------------------------------
+
+```{r}
+library(fpp2)
+s01_var01s<- ts(s01_var01[,2], start = c(2011,88), frequency = 261)
+
+s01_var02s<- ts(s01_var02[,2], start = c(2011,88), frequency = 261)
+
+s02_var02s<- ts(s02_var02[,2], start = c(2011,88), frequency = 261)
+
+s02_var03s<- ts(s02_var03[,2], start = c(2011,88), frequency = 261)
+
+s03_var05s<- ts(s03_var05[,2], start = c(2011,88), frequency = 261)
+
+s03_var07s<- ts(s03_var07[,2], start = c(2011,88), frequency = 261)
+
+
+s01_var01<- ts(s01_var01[,2], frequency=1)
+autoplot(s01_var01)
+
+s01_var02<- ts(s01_var02[,2], frequency=1)
+autoplot(s01_var02)
+
+s02_var02<- ts(s02_var02[,2], frequency=1)
+autoplot(s02_var02)
+
+s02_var03<- ts(s02_var03[,2], frequency=1)
+autoplot(s02_var03)
+
+s03_var05<- ts(s03_var05[,2], frequency=1)
+autoplot(s03_var05)
+
+s03_var07<- ts(s03_var07[,2], frequency=1)
+autoplot(s03_var07)
+
+```
+
+
+#FIND THE OUTLIERS
+
+Outliers have been identified. We will not remove those outliers since we are not certain the data could be a an error from incorrect input or some other error.
+
+```{r}
+s01_var01outlier <- which.max(s01_var01)
+s01_var01outlier
+s01_var02outlier <- which.max(s01_var02)
+s01_var02outlier
+s02_var02outlier <- which.max(s02_var02)
+s02_var02outlier
+s02_var03outlier <- which.max(s02_var03)
+s02_var03outlier
+s03_var05outlier <- which.max(s03_var05)
+s03_var05outlier
+s03_var07outlier <- which.max(s03_var07)
+s03_var07outlier
+```
+
+
+##DECOMPOSITION OF TIME SERIES
+
+We will now run a decomposition function on all our series for each our groups and variables. Decomposition is a mathematical procedure that will produce different time series from the time series it it is decompsing that will usually be split into several components such as trend and seasonality. We need this in order to see if the time series we want to model has those qualities which would factor in what models would be more appropriate to use.
+
+REFERENCE LINK TO RESEARCH MATERIAL:
+
+https://anomaly.io/seasonal-trend-decomposition-in-r/index.html
+
+
+After running the decompostion on all the series, we saw that  s01_var01, s02_var02, s03_var05 and s03_var07 had some trend and and seasonality while s01_var02 and s02_var02 did not exhibit as much seasonality as the others. We have summarized in excel our conclusions on what each series exhibted from analyzing the decomposition plots.
+
+
+```{r}
+s01_var01s %>% decompose(type = "multiplicative") %>%
+  autoplot()  + xlab("Year - s01_var01") 
+
+s01_var02s %>% decompose(type = "multiplicative") %>%
+  autoplot()  + xlab("Year - s01_var02") 
+
+s02_var02s %>% decompose(type = "multiplicative") %>%
+  autoplot()  + xlab("Year - s02_var02") 
+
+s02_var03s %>% decompose(type = "multiplicative") %>%
+  autoplot()  + xlab("Year - s02_var03") 
+
+s03_var05s %>% decompose(type = "multiplicative") %>%
+  autoplot()  + xlab("Year - s03_var05") 
+
+s03_var07s %>% decompose(type = "multiplicative") %>%
+  autoplot()  + xlab("Year - s03_var07") 
+
+```
+
+
+## FORECASTS METHODS TO FIT OUR DATA (NAIVE AND ETS)
+
+We will now pick two forecast methods to use with our data. One will be the NAIVE method which we will use as our benchmark method and the other will be ETS which will be an automatic method to compare to the benchmark.
+
+After running the forecast methods on each time series, we will record the residual sd and compare the two. A lower residual sd is better, so the method that produces a lower sd will be selected for that particular time series.
+
+And then lastly, a checkresiduals function will be run on all the series to further evaluate the fit.
+
+For ETS - #Remember, a model passes the Ljung-Box test when the p-value is greater than 0.05. 
+
+#### NAIVE (S01-Var01)
+```{r, include=TRUE, message=FALSE, warning=FALSE, echo=FALSE}
+s01_var01n<-naive(s01_var01) #residual sd .7584
+summary(s01_var01n)
+checkresiduals(s01_var01n)
+```
+#### NAIVE (S01-Var02)
+```{r, include=TRUE, message=FALSE, warning=FALSE, echo=FALSE}
+s01_var02n<-naive(s01_var02) #residual sd 3919214.7158 
+summary(s01_var02n)
+checkresiduals(s01_var02n)
+```
+#### NAIVE (S02-Var02)
+```{r, include=TRUE, message=FALSE, warning=FALSE, echo=FALSE}
+s02_var02n<-naive(s02_var02) #residual sd 28643387.1185 
+summary(s02_var02n)
+checkresiduals(s01_var02n)
+```
+#### NAIVE (S02-Var03)
+```{r, include=TRUE, message=FALSE, warning=FALSE, echo=FALSE}
+s02_var03n<-naive(s02_var03) #residual sd 0.9396 
+summary(s02_var03n)
+checkresiduals(s02_var03n)
+```
+#### NAIVE (S03-Var05)
+```{r, include=TRUE, message=FALSE, warning=FALSE, echo=FALSE}
+s03_var05n<-naive(s03_var05) #residual sd 1.8016
+summary(s03_var05n)
+checkresiduals(s03_var05n)
+```
+#### NAIVE (S03-Var07)
+```{r, include=TRUE, message=FALSE, warning=FALSE, echo=FALSE}
+s03_var07n<-naive(s03_var07) #residual sd 1.6587
+summary(s03_var07n)
+checkresiduals(s03_var07n)
+```
+#### ETS (S01-Var01)
+```{r, include=TRUE, message=FALSE, warning=FALSE, echo=FALSE}
+fit01_var01 <- ets(s01_var01) #residual sd 0.0187
+summary(fit01_var01)
+checkresiduals(fit01_var01)
+```
+#### ETS (S01-Var02)
+```{r, include=TRUE, message=FALSE, warning=FALSE, echo=FALSE}
+fit01_var02 <- ets(s01_var02) #residual sd 0.3724
+summary(fit01_var02)
+checkresiduals(fit01_var02)
+```
+#### ETS (S02-Var02)
+```{r, include=TRUE, message=FALSE, warning=FALSE, echo=FALSE}
+fit02_var02 <- ets(s02_var02) #residual sd 0.4495
+summary(fit02_var02)
+checkresiduals(fit02_var02)
+```
+#### ETS (S02-Var03)
+```{r, include=TRUE, message=FALSE, warning=FALSE, echo=FALSE}
+fit02_var03 <- ets(s02_var03) #residual sd 0.0552
+summary(fit02_var03)
+checkresiduals(fit02_var03)
+```
+#### ETS (S03-Var05)
+```{r, include=TRUE, message=FALSE, warning=FALSE, echo=FALSE}
+fit03_var05 <- ets(s03_var05) #residual sd 0.0218
+summary(fit03_var05)
+checkresiduals(fit03_var05)
+```
+#### ETS (S03-Var07)
+```{r, include=TRUE, message=FALSE, warning=FALSE, echo=FALSE}
+fit03_var07 <- ets(s03_var07) #residual sd 0.0205
+summary(fit03_var07)
+checkresiduals(fit03_var07)
+```
+
+## FORECAST WITH CHOSEN BEST FORECAST METHOD
+
+Not totally unexpected but the ETS model had the lower residual sd for all of them. Therefore based on that criteria, ETS will be used to produce the forecasts for all the variable sets.
+
+#### S01-Forecast Var01
+```{r, include=TRUE, message=FALSE, warning=FALSE, echo=FALSE}
+fcs01_var01<-forecast(fit01_var01,h=140)
+autoplot(fcs01_var01)
+write.csv(fcs01_var01,"C:\\Users\\jkks9\\Documents\\DATA 624\\fcs01_var01.csv", row.names = FALSE)
+```
+#### S01-Forecast Var02
+```{r, include=TRUE, message=FALSE, warning=FALSE, echo=FALSE}
+fcs01_var02<-forecast(fit01_var02,h=140)
+autoplot(fcs01_var02)
+write.csv(fcs01_var02,"C:\\Users\\jkks9\\Documents\\DATA 624\\fcs01_var02.csv", row.names = FALSE)
+```
+#### S02-Forecast Var02
+```{r, include=TRUE, message=FALSE, warning=FALSE, echo=FALSE}
+fcs02_var02<-forecast(fit02_var02,h=140)
+autoplot(fcs02_var02)
+write.csv(fcs02_var02,"C:\\Users\\jkks9\\Documents\\DATA 624\\fcs02_var02.csv", row.names = FALSE)
+```
+#### S02-Forecast Var03
+```{r, include=TRUE, message=FALSE, warning=FALSE, echo=FALSE}
+fcs02_var03<-forecast(fit02_var03,h=140)
+autoplot(fcs02_var03)
+write.csv(fcs02_var03,"C:\\Users\\jkks9\\Documents\\DATA 624\\fcs02_var03.csv", row.names = FALSE)
+```
+#### S03-Forecast Var05
+```{r, include=TRUE, message=FALSE, warning=FALSE, echo=FALSE}
+fcs03_var05<-forecast(fit03_var05,h=140)
+autoplot(fcs03_var05)
+write.csv(fcs03_var05,"C:\\Users\\jkks9\\Documents\\DATA 624\\ffcs03_var05.csv", row.names = FALSE)
+```
+#### S03-Forecast Var07
+```{r, include=TRUE, message=FALSE, warning=FALSE, echo=FALSE}
+fcs03_var07<-forecast(fit03_var07,h=140)
+autoplot(fcs03_var07)
+write.csv(fcs03_var07,"C:\\Users\\jkks9\\Documents\\DATA 624\\ffcs03_var07.csv", row.names = FALSE)
+```
+
+
+
+###JOHN-----------------------------------------------------------------------------------------------------------
+
+
+
+
+
+
+
+
+###S04 – Forecast  Var01
+
+For each of the variables in group 4-6, we want to try running ETS and ARIMA models. 
+Before running any models for these 3 groups we checked the time plot, seasonal plot and decomposition to see what they recommend.
+```{r, include=FALSE, message=FALSE, warning=FALSE, echo=FALSE}
+s04_var01 <- data1%>%
+  filter(group =='S04' ) %>%
+  select(SeriesInd, Var01)
+s04_var01<- ts(s04_var01[,2], start = c(2011,88), frequency = 261)
+autoplot(s04_var01) + ggtitle("Time Plot S04 – Forecast  Var01")
+```
+
+
+```{r, include=FALSE, message=FALSE, warning=FALSE, echo=FALSE}
+ggseasonplot(s04_var01)
+```
+
+This data has a strong upward trend as you can see on the decomposition of multiplicative time series. 
+```{r, include=TRUE, message=FALSE, warning=FALSE, echo=FALSE}
+s04_var01 %>% decompose(type = "multiplicative") %>%
+  autoplot()  + xlab("Year")
+```
+
+
+
+```{r, include=FALSE, message=FALSE, warning=FALSE, echo=FALSE}
+raw_data <- readxl::read_excel('./Data Set for Class.xls')
+
+data_orig_series <- raw_data %>%
+  filter(SeriesInd<43022)
+
+data_cc_o <- data_orig_series%>%
+  filter(complete.cases(.)) 
+
+
+medians_o <- data_cc_o %>%
+  group_by(group) %>%
+  summarise(med = median(Var01))
+
+data_orig_series[is.na(data_orig_series$Var01) & data_orig_series$group == 'S01', ]$Var01 <- medians_o$med[medians_o$group == 'S01'][1] 
+data_orig_series[is.na(data_orig_series$Var01) & data_orig_series$group == 'S02', ]$Var01 <- medians_o$med[medians_o$group == 'S02'][1] 
+data_orig_series[is.na(data_orig_series$Var01) & data_orig_series$group == 'S03', ]$Var01 <- medians_o$med[medians_o$group == 'S03'][1] 
+data_orig_series[is.na(data_orig_series$Var01) & data_orig_series$group == 'S04', ]$Var01 <- medians_o$med[medians_o$group == 'S04'][1] 
+data_orig_series[is.na(data_orig_series$Var01) & data_orig_series$group == 'S05', ]$Var01 <- medians_o$med[medians_o$group == 'S05'][1] 
+data_orig_series[is.na(data_orig_series$Var01) & data_orig_series$group == 'S06', ]$Var01 <- medians_o$med[medians_o$group == 'S06'][1] 
+
+medians_o <- data_cc_o %>%
+  group_by(group) %>%
+  summarise(med = median(Var02))
+data_orig_series[is.na(data_orig_series$Var02) & data_orig_series$group == 'S05', ]$Var02 <- medians_o$med[medians_o$group == 'S05'][1] 
+data_orig_series[is.na(data_orig_series$Var02) & data_orig_series$group == 'S06', ]$Var02 <- medians_o$med[medians_o$group == 'S06'][1] 
+data_orig_series[data_orig_series$group =='S04' & data_orig_series$Var02 > 200000000, ]$Var02 <- medians_o$med[medians_o$group == 'S04'][1] 
+
+
+
+medians_o <- data_cc_o %>%
+  group_by(group) %>%
+  summarise(med = median(Var03))
+data_orig_series[is.na(data_orig_series$Var03) & data_orig_series$group == 'S01', ]$Var03 <- medians_o$med[medians_o$group == 'S01'][1] 
+data_orig_series[is.na(data_orig_series$Var03) & data_orig_series$group == 'S02', ]$Var03 <- medians_o$med[medians_o$group == 'S02'][1] 
+data_orig_series[is.na(data_orig_series$Var03) & data_orig_series$group == 'S03', ]$Var03 <- medians_o$med[medians_o$group == 'S03'][1] 
+data_orig_series[is.na(data_orig_series$Var03) & data_orig_series$group == 'S04', ]$Var03 <- medians_o$med[medians_o$group == 'S04'][1] 
+data_orig_series[is.na(data_orig_series$Var03) & data_orig_series$group == 'S05', ]$Var03 <- medians_o$med[medians_o$group == 'S05'][1] 
+data_orig_series[is.na(data_orig_series$Var03) & data_orig_series$group == 'S06', ]$Var03 <- medians_o$med[medians_o$group == 'S06'][1] 
+
+medians_o <- data_cc_o %>%
+  group_by(group) %>%
+  summarise(med = median(Var05))
+data_orig_series[is.na(data_orig_series$Var05) & data_orig_series$group == 'S01', ]$Var05 <- medians_o$med[medians_o$group == 'S01'][1] 
+data_orig_series[is.na(data_orig_series$Var05) & data_orig_series$group == 'S02', ]$Var05 <- medians_o$med[medians_o$group == 'S02'][1] 
+data_orig_series[is.na(data_orig_series$Var05) & data_orig_series$group == 'S03', ]$Var05 <- medians_o$med[medians_o$group == 'S03'][1] 
+data_orig_series[is.na(data_orig_series$Var05) & data_orig_series$group == 'S04', ]$Var05 <- medians_o$med[medians_o$group == 'S04'][1] 
+data_orig_series[is.na(data_orig_series$Var05) & data_orig_series$group == 'S05', ]$Var05 <- medians_o$med[medians_o$group == 'S05'][1] 
+data_orig_series[is.na(data_orig_series$Var05) & data_orig_series$group == 'S06', ]$Var05 <- medians_o$med[medians_o$group == 'S06'][1] 
+data_orig_series[data_orig_series$group =='S06' & data_orig_series$Var05 == max(data_orig_series$Var05),]$Var05 <-medians_o$med[medians_o$group == 'S06'][1] 
+
+
+medians_o <- data_cc_o %>%
+  group_by(group) %>%
+  summarise(med = median(Var07))
+data_orig_series[is.na(data_orig_series$Var07) & data_orig_series$group == 'S01', ]$Var07 <- medians_o$med[medians_o$group == 'S01'][1] 
+data_orig_series[is.na(data_orig_series$Var07) & data_orig_series$group == 'S02', ]$Var07 <- medians_o$med[medians_o$group == 'S02'][1] 
+data_orig_series[is.na(data_orig_series$Var07) & data_orig_series$group == 'S03', ]$Var07 <- medians_o$med[medians_o$group == 'S03'][1] 
+data_orig_series[is.na(data_orig_series$Var07) & data_orig_series$group == 'S04', ]$Var07 <- medians_o$med[medians_o$group == 'S04'][1] 
+data_orig_series[is.na(data_orig_series$Var07) & data_orig_series$group == 'S05', ]$Var07 <- medians_o$med[medians_o$group == 'S05'][1] 
+data_orig_series[is.na(data_orig_series$Var07) & data_orig_series$group == 'S06', ]$Var07 <- medians_o$med[medians_o$group == 'S06'][1] 
+data_orig_series[data_orig_series$group =='S06' & data_orig_series$Var07 == max( data_orig_series$Var07),]$Var07 <-medians_o$med[medians_o$group == 'S06'][1] 
+```
+
+
+#### ETS  (S04 – Var01)
+```{r, include=TRUE, message=FALSE, warning=FALSE, echo=FALSE}
+s04_var01_o <- data_orig_series%>%
+  filter(group =='S04' ) %>%
+  select(SeriesInd, Var01)
+s04_var01_o<- ts(s04_var01_o[,2], frequency = 5)
+s04_var01_ets <- ets(s04_var01_o)
+print(summary(s04_var01_ets))
+```
+
+```{r, include=TRUE, message=FALSE, warning=FALSE, echo=FALSE}
+checkresiduals(s04_var01_ets)
+```
+The residuals plot looks not too bad, but our Ljung-Box test has an extremely small p-value indicating that there is some autocorrelation in our data. 
+
+#### ARIMA  (S04 – Var01)
+```{r, include=TRUE, message=FALSE, warning=FALSE, echo=FALSE}
+s04_var01_arima <- auto.arima(s04_var01_o)
+print(summary(s04_var01_arima))
+```
+
+```{r, include=TRUE, message=FALSE, warning=FALSE, echo=FALSE}
+checkresiduals(s04_var01_arima)
+```
+
+
+
+The ARIMA model gave us better AIC and Ljung-Box results.
+
+
+```{r, include=FALSE, message=FALSE, warning=FALSE, echo=FALSE}
+fcst1 <-forecast(s04_var01_arima, h = 140)  
+autoplot(fcst1)
+write.csv(fcst1,"./test_fcst1.csv", row.names = FALSE)
+```
+
+
+###S04 – Forecast  Var02
+
+There is an outlier in the second variable for Group 4 data that is far above the normal. The outlier was replaces with the median. 
+
+
+```{r, include=FALSE, message=FALSE, warning=FALSE, echo=FALSE}
+s04_var02 <- data_orig_series%>%
+  filter(group =='S04' ) %>%
+  select(SeriesInd, Var02)
+s04_var02<- ts(s04_var02[,2], start = c(2011,88), frequency = 261)
+autoplot(s04_var02) + ggtitle("Time Plot")
+```
+
+```{r, include=FALSE, message=FALSE, warning=FALSE, echo=FALSE}
+ggseasonplot(s04_var02)
+```
+
+```{r, include=TRUE, message=FALSE, warning=FALSE, echo=FALSE}
+s04_var02 %>% decompose(type = "multiplicative") %>%
+  autoplot()  + xlab("Year")
+```
+
+
+#### ETS  (S04 – Var02)
+```{r, include=TRUE, message=FALSE, warning=FALSE, echo=FALSE}
+s04_var02_o <- data_orig_series%>%
+  filter(group =='S04' ) %>%
+  select(SeriesInd, Var02)
+s04_var02_o<- ts(s04_var02_o[,2], frequency = 5)
+s04_var02_ets <- ets(s04_var02_o)
+print(summary(s04_var02_ets))
+```
+
+```{r, include=TRUE, message=FALSE, warning=FALSE, echo=FALSE}
+checkresiduals(s04_var02_ets)
+```
+
+#### ARIMA  (S04 – Var02)
+
+No seasonal differencing was recommended by auto.arima() but a box-cox transformation with λ = -0.4565625 was.
+
+```{r, include=TRUE, message=FALSE, warning=FALSE, echo=FALSE}
+
+s04_var02_arima <- auto.arima(s04_var02_o,lambda="auto")
+print(summary(s04_var02_arima))
+```
+
+```{r, include=TRUE, message=FALSE, warning=FALSE, echo=FALSE}
+checkresiduals(s04_var02_arima)
+```
+
+ARIMA is the preferred model for this variable forecasting.
+
+
+```{r, include=FALSE, message=FALSE, warning=FALSE, echo=FALSE}
+fcst2 <-forecast(s04_var02_arima, h = 140)  
+autoplot(fcst2)
+write.csv(fcst2,"./test_fcst2.csv", row.names = FALSE)
+```
+
+
+
+###S05 – Forecast  Var02
+
+```{r, include=FALSE, message=FALSE, warning=FALSE, echo=FALSE}
+s05_var02 <- data1%>%
+  filter(group =='S05' ) %>%
+  select(SeriesInd, Var02)
+s05_var02<- ts(s05_var02[,2], start = c(2011,88), frequency = 261)
+autoplot(s05_var02) + ggtitle("Time Plot")
+```
+
+```{r, include=FALSE, message=FALSE, warning=FALSE, echo=FALSE}
+ggseasonplot(s05_var02)
+```
+
+```{r, include=TRUE, message=FALSE, warning=FALSE, echo=FALSE}
+s05_var02 %>% decompose(type = "multiplicative") %>%
+  autoplot()  + xlab("Year")
+```
+
+
+#### ETS  (S05 – Var02)
+
+```{r, include=TRUE, message=FALSE, warning=FALSE, echo=FALSE}
+s05_var02_o <- data_orig_series%>%
+  filter(group =='S05' ) %>%
+  select(SeriesInd, Var01)
+s05_var02_o<- ts(s05_var02_o[,2], frequency = 5)
+s05_var02_ets <- ets(s05_var02_o)
+print(summary(s05_var02_ets))
+```
+
+```{r, include=TRUE, message=FALSE, warning=FALSE, echo=FALSE}
+checkresiduals(s05_var02_ets)
+```
+#### ARIMA  (S05 – Var02)
+
+```{r, include=TRUE, message=FALSE, warning=FALSE, echo=FALSE}
+s05_var02_arima <- auto.arima(s05_var02_o)
+print(summary(s05_var02_arima))
+```
+
+```{r}
+checkresiduals(s05_var02_arima)
+```
+
+```{r, include=FALSE, message=FALSE, warning=FALSE, echo=FALSE}
+fcst3 <-forecast(s05_var02_arima, h = 140)  
+autoplot(fcst3)
+write.csv(fcst3,"./test_fcst3.csv", row.names = FALSE)
+```
+
+
+The ARIMA model resulted in the best fit with the best RMSE and a Ljung-Box p-value. The plot of the forecast also looks like a more reasonable estimate of what we can expect based on the historical data.
+
+
+###S05 – Forecast  Var03
+
+```{r, include=FALSE, message=FALSE, warning=FALSE, echo=FALSE}
+s05_var03 <- data1%>%
+  filter(group =='S05' ) %>%
+  select(SeriesInd, Var03)
+s05_var03<- ts(s05_var03[,2], start = c(2011,88), frequency = 261)
+autoplot(s05_var03) + ggtitle("Time Plot")
+```
+
+```{r, include=FALSE, message=FALSE, warning=FALSE, echo=FALSE}
+ggseasonplot(s05_var03)
+```
+
+```{r, include=TRUE, message=FALSE, warning=FALSE, echo=FALSE}
+s05_var03 %>% decompose(type = "multiplicative") %>%
+  autoplot()  + xlab("Year")
+```
+
+#### ETS  (S05 – Var03)
+
+```{r, include=TRUE, message=FALSE, warning=FALSE, echo=FALSE}
+s05_var03_o <- data_orig_series%>%
+  filter(group =='S05' ) %>%
+  select(SeriesInd, Var03)
+s05_var03_o<- ts(s05_var03_o[,2], frequency = 5)
+s05_var03_ets <- ets(s05_var03_o)
+print(summary(s05_var03_ets))
+```
+
+```{r, include=TRUE, message=FALSE, warning=FALSE, echo=FALSE}
+checkresiduals(s05_var03_ets)
+```
+
+#### ARIMA  (S05 – Var03)
+
+
+```{r, include=TRUE, message=FALSE, warning=FALSE, echo=FALSE}
+s05_var03_arima <- auto.arima(s05_var03_o)
+print(summary(s05_var03_arima))
+```
+
+```{r}
+checkresiduals(s05_var03_arima)
+```
+
+The ARIMA model gave us slightly better results than ETS model, based on AIC and sigma^2(standart deviation).
+
+```{r, include=FALSE, message=FALSE, warning=FALSE, echo=FALSE}
+fcst4 <-forecast(s05_var03_arima, h = 140)  
+autoplot(fcst4)
+write.csv(fcst4,"./test_fcst4.csv", row.names = FALSE)
+```
+
+###S06 – Forecast  Var05
+
+
+Here again, we can clearly see an outlier that is most likely a data error so we imputed that point with the mean of the other data for the same variable and group. We did the same with another NA data point for next variable (Var07).
+
+
+```{r, include=TRUE, message=FALSE, warning=FALSE, echo=FALSE}
+s06_var05 <- data1%>%
+  filter(group =='S06' ) %>%
+  select(SeriesInd, Var05)
+s06_var05<- ts(s06_var05[,2], start = c(2011,88), frequency = 261)
+autoplot(s06_var05) + ggtitle("Time Plot")
+```
+ Let’s plot the data again after these transformations are performed to see what impact they have.
+
+```{r, include=TRUE, message=FALSE, warning=FALSE, echo=FALSE}
+s06_var05_o <- data_orig_series%>%
+  filter(group =='S06' ) %>%
+  select(SeriesInd, Var05)
+s06_var05_o<- ts(s06_var05_o[,2], start = c(2011,88), frequency = 5)
+autoplot(s06_var05_o) + ggtitle("Time Plot")
+```
+
+```{r, include=FALSE, message=FALSE, warning=FALSE, echo=FALSE}
+ggseasonplot(s06_var05)
+```
+
+```{r, include=TRUE, message=FALSE, warning=FALSE, echo=FALSE}
+s06_var05 %>% decompose(type = "multiplicative") %>%
+  autoplot()  + xlab("Year")
+```
+
+
+This group’s outliers were replaced with the median since it was so far above the norm, so it seemed likely to be an error.
+
+#### ETS  (S06 – Var05)
+
+```{r, include=TRUE, message=FALSE, warning=FALSE, echo=FALSE}
+s06_var05_ets <- ets(s06_var05_o)
+print(summary(s06_var05_ets))
+```
+
+
+
+```{r, include=TRUE, message=FALSE, warning=FALSE, echo=FALSE}
+checkresiduals(s06_var05_ets)
+```
+#### ARIMA  (S06 – Var05)
+
+```{r, include=TRUE, message=FALSE, warning=FALSE, echo=FALSE}
+s06_var05_arima <- auto.arima(s06_var05_o)
+print(summary(s06_var05_arima))
+```
+
+```{r}
+checkresiduals(s06_var05_arima)
+```
+
+The auto.arima function gave us the best results so that model will be used for predictions.
+
+```{r, include=FALSE, message=FALSE, warning=FALSE, echo=FALSE}
+fcst5 <-forecast(s06_var05_arima, h = 140)  
+autoplot(fcst5)
+write.csv(fcst5,"./test_fcst5.csv", row.names = FALSE)
+```
+
+###S06 – Forecast  Var07
+This group’s outlier was also replaced with the median since it was so far above the norm, so it seemed likely to be an error.
+
+```{r, include=FALSE, message=FALSE, warning=FALSE, echo=FALSE}
+s06_var07 <- data1%>%
+  filter(group =='S06' ) %>%
+  select(SeriesInd, Var07)
+s06_var07<- ts(s06_var07[,2], start = c(2011,88), frequency = 261)
+autoplot(s06_var07) + ggtitle("Time Plot")
+```
+
+```{r, include=FALSE, message=FALSE, warning=FALSE, echo=FALSE}
+s06_var07 <- data_orig_series%>%
+  filter(group =='S06' ) %>%
+  select(SeriesInd, Var07)
+s06_var07<- ts(s06_var07[,2], start = c(2011,88), frequency = 261)
+autoplot(s06_var07) + ggtitle("Time Plot")
+```
+
+```{r, include=FALSE, message=FALSE, warning=FALSE, echo=FALSE}
+ggseasonplot(s06_var07)
+```
+
+```{r, include=TRUE, message=FALSE, warning=FALSE, echo=FALSE}
+s06_var07 %>% decompose(type = "multiplicative") %>%
+  autoplot()  + xlab("Year")
+```
+
+#### ETS  (S06 – Var07)
+
+```{r, include=TRUE, message=FALSE, warning=FALSE, echo=FALSE}
+s06_var07_o <- data_orig_series%>%
+  filter(group =='S06' ) %>%
+  select(SeriesInd, Var07)
+s06_var07_o<- ts(s06_var07_o[,2], frequency = 5)
+s06_var07_ets <- ets(s06_var07_o)
+print(summary(s06_var07_ets))
+```
+
+```{r, include=TRUE, message=FALSE, warning=FALSE, echo=FALSE}
+checkresiduals(s06_var07_ets)
+```
+
+#### ARIMA  (S06 – Var07)
+```{r, include=TRUE, message=FALSE, warning=FALSE, echo=FALSE}
+s06_var07_arima <- auto.arima(s06_var07_o)
+print(summary(s06_var07_arima))
+```
+
+```{r, include=TRUE, message=FALSE, warning=FALSE, echo=FALSE}
+checkresiduals(s06_var07_arima)
+```
+
+The ARIMA model has the lower AIC compare to the ETS model. The residuals plot and Ljung-Box looks good. The plot of the forecast also looks like a more reasonable estimate of what we can expect based on the historical data.
+
+
+
+```{r, include=FALSE, message=FALSE, warning=FALSE, echo=FALSE}
+fcst6 <-forecast(s06_var07_arima, h = 140)  
+autoplot(fcst6)
+write.csv(fcst6,"./test_fcst6.csv", row.names = FALSE)
+```
+
+
+
+
